@@ -17,11 +17,11 @@ const AddressSchema = new Schema(
 
 const ProfileSchema = new Schema(
   {
-    UserName: {
+    CNIC: {
       type: String,
       required: true,
     },
-    Gender: {
+    AccountType: {
       type: String,
     },
     userId: {

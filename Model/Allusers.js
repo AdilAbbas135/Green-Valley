@@ -10,14 +10,16 @@ const AllUsersSchema = new Schema(
     Password: {
       type: String,
     },
-    UserName: {
+    CNIC: {
+      type: String,
+    },
+    AccountType: {
       type: String,
     },
     profileId: {
       type: Schema.Types.ObjectId,
       default: null,
     },
-
     isEmailVerified: { type: Boolean, default: false },
   },
   { timestamps: true }

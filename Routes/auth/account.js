@@ -74,7 +74,7 @@ router.post("/verifyemail/", async (req, res) => {
   try {
     const user = await UserModel.findById(req.body.userid);
     if (user) {
-      const token = await OTPModel.findOne({
+      const token = await TokenModel.findOne({
         userId: user._id,
         token: Number(req.body.Token),
       });
@@ -82,18 +82,20 @@ router.post("/verifyemail/", async (req, res) => {
         const newUser = await AllUsersModel.create({
           Email: user.email,
           Password: req.body.Password,
-          UserName: req.body.UserName,
+          CNIC: req.body.CNIC,
+          AccountType: req.body.AccountType,
           isEmailVerified: true,
         });
         if (newUser) {
           await UserModel.findByIdAndDelete(req.body.userid);
-          await OTPModel.findByIdAndDelete(token._id);
+          await TokenModel.findByIdAndDelete(token._id);
           const Profile = await ProfileModel.findOne({ Email: req.body.Email });
           if (!Profile) {
             const newProfile = await ProfileModel.create({
-              UserName: req.body.UserName ? req.body.UserName : "",
               Email: req.body.Email,
               Password: req.body.Password,
+              CNIC: req.body.CNIC ? req.body.CNIC : "",
+              AccountType: req.body.AccountType,
               userId: newUser?._id,
             });
             if (newProfile) {
