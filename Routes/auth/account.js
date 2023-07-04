@@ -8,6 +8,7 @@ const UserModel = require("../../Model/Users");
 const SendMail = require("../../utils/SendMail");
 const ProfileModel = require("../../Model/Profile");
 const TokenModel = require("../../Model/Token");
+import VerifyToken from "../../Middlewear/VerifyToken";
 
 // ROUTE 1 : REGISTER WITH MAIL AND SEND VERIFY EMAIL
 router.post("/createaccount", async (req, res) => {
@@ -197,6 +198,15 @@ router.post("/login", async (req, res) => {
     return res
       .status(400)
       .json({ success: false, error: "Internal Server Error" });
+  }
+});
+
+router.post("/find-profile", VerifyToken, async (req, res) => {
+  try {
+    const Profile = await ProfileModel.findById(req.user.profileId);
+    return res.status(200).json({ Profile });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
