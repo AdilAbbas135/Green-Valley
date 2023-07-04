@@ -7,19 +7,21 @@ const OTPModel = require("../../Model/Token");
 const UserModel = require("../../Model/Users");
 const SendMail = require("../../utils/SendMail");
 const ProfileModel = require("../../Model/Profile");
+const TokenModel = require("../../Model/Token");
 
 // ROUTE 1 : REGISTER WITH MAIL AND SEND VERIFY EMAIL
 router.post("/createaccount", async (req, res) => {
   try {
-    const finduser = await AllUsersModel.findOne({ Email: req.query.email });
+    const finduser = await AllUsersModel.findOne({ Email: req.body.Email });
     if (!finduser) {
-      const finduser2 = await UserModel.findOne({ email: req.query.email });
+      const finduser2 = await UserModel.findOne({ email: req.body.Email });
       let user = null;
       if (!finduser2) {
         user = await UserModel.create({
           email: req.body.Email,
-          UserName: req.body.UserName,
           Password: req.body.Password,
+          CNIC: req.body.CNIC,
+          AccountType: req.body.AccountType,
         });
       } else {
         user = finduser2;
@@ -46,6 +48,7 @@ router.post("/createaccount", async (req, res) => {
       return res.status(400).json({ msg: "This Email is Already Registered" });
     }
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ success: false, error: "Internal Server Error" });
@@ -53,11 +56,11 @@ router.post("/createaccount", async (req, res) => {
 });
 
 async function assigntoken(user) {
-  const token = await OTPModel.create({
+  const token = await TokenModel.create({
     userId: user._id,
-    token: Math.floor(1000 + Math.random() * 9000),
+    token: require("crypto").randomBytes(32).toString("hex"),
   });
-  const url = `Your Otp Token is ${token.token}`;
+  const url = `${process.env.BASE_URL}auth/signup/emailverification?user=${user._id}&token=${token.token}`;
   const sendmail = await SendMail(user.email, "Verify Your Email Address", url);
   if (sendmail) {
     return true;
