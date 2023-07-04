@@ -70,32 +70,30 @@ async function assigntoken(user) {
 }
 
 // ROUTE 2 : VERIFY TOKEN/EMAIL AND CREATE USER ACCOUNT
-router.post("/verifyemail/", async (req, res) => {
+router.post("/verifyemail/:userid/:Token", async (req, res) => {
   try {
-    const user = await UserModel.findById(req.body.userid);
+    const user = await UserModel.findById(req.params.userid);
     if (user) {
       const token = await TokenModel.findOne({
         userId: user._id,
-        token: Number(req.body.Token),
+        token: req.params.Token,
       });
       if (token) {
         const newUser = await AllUsersModel.create({
           Email: user.email,
-          Password: req.body.Password,
-          CNIC: req.body.CNIC,
-          AccountType: req.body.AccountType,
+          Password: user.Password,
+          CNIC: user.CNIC,
+          AccountType: user.AccountType,
           isEmailVerified: true,
         });
         if (newUser) {
-          await UserModel.findByIdAndDelete(req.body.userid);
-          await TokenModel.findByIdAndDelete(token._id);
           const Profile = await ProfileModel.findOne({ Email: req.body.Email });
           if (!Profile) {
             const newProfile = await ProfileModel.create({
-              Email: req.body.Email,
-              Password: req.body.Password,
-              CNIC: req.body.CNIC ? req.body.CNIC : "",
-              AccountType: req.body.AccountType,
+              Email: user.email,
+              Password: user.Password,
+              CNIC: user.CNIC ? user.CNIC : "",
+              AccountType: user.AccountType,
               userId: newUser?._id,
             });
             if (newProfile) {
@@ -104,7 +102,7 @@ router.post("/verifyemail/", async (req, res) => {
                 {
                   $set: {
                     profileId: newProfile._id,
-                    Password: req.body.Password,
+                    Password: user.Password,
                   },
                 }
               );
@@ -119,6 +117,8 @@ router.post("/verifyemail/", async (req, res) => {
                   process.env.JWT_SECRET_KEY,
                   { expiresIn: "1d" }
                 );
+                await UserModel.findByIdAndDelete(req.body.userid);
+                await TokenModel.findByIdAndDelete(token._id);
                 return res.status(200).json({
                   success: true,
                   User: updateUserModel,
@@ -148,9 +148,11 @@ router.post("/verifyemail/", async (req, res) => {
           });
         }
       } else {
+        console.log("calling 1");
         return res.status(400).json({ success: false, error: "invalid Link" });
       }
     } else {
+      console.log("calling 2");
       return res.status(400).json({ success: false, error: "Invalid Link" });
     }
   } catch (error) {
