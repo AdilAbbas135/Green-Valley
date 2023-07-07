@@ -14,13 +14,25 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+router.post("/", VerifyToken, async (req, res) => {
+  try {
+    const Products = await ProductsModel.find({
+      profileId: req.user.profileId,
+    });
+    return res.status(200).json({ Products });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 router.post("/add", VerifyToken, upload.single("file"), async (req, res) => {
   try {
     await ProductsModel.create({
       profileId: req.user.profileId,
       Image: req.file.path,
-      Title: req.body.Title,
-      Description: req.body.Description,
+      Title: req.body.Data.Title,
+      Description: req.body.Data.Description,
       Price: req.body.Price,
     });
     return res.status(200).json({ msg: "Product Added Successfully" });
