@@ -28,12 +28,13 @@ router.post("/", VerifyToken, async (req, res) => {
 
 router.post("/add", VerifyToken, upload.single("file"), async (req, res) => {
   try {
+    const Data = JSON.parse(req.body.Data);
     await ProductsModel.create({
       profileId: req.user.profileId,
       Image: req.file.path,
-      Title: req.body.Data.Title,
-      Description: req.body.Data.Description,
-      Price: req.body.Price,
+      Title: Data.Title,
+      Description: Data.Description,
+      Price: Data.Price,
     });
     return res.status(200).json({ msg: "Product Added Successfully" });
   } catch (error) {
