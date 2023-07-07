@@ -8,7 +8,7 @@ const UserModel = require("../../Model/Users");
 const SendMail = require("../../utils/SendMail");
 const ProfileModel = require("../../Model/Profile");
 const TokenModel = require("../../Model/Token");
-import VerifyToken from "../../Middlewear/VerifyToken";
+const VerifyToken = require("../../Middlewear/VerifyToken");
 
 // ROUTE 1 : REGISTER WITH MAIL AND SEND VERIFY EMAIL
 router.post("/createaccount", async (req, res) => {
