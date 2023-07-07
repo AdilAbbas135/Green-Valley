@@ -19,3 +19,4 @@ app.use("/uploads", express.static("uploads"));
 //Routes
 app.use("/account", require("./Routes/auth/account"));
 app.use("/products", require("./Routes/products"));
+app.use("/find", require("./Routes/find"));
